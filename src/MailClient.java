@@ -1,5 +1,5 @@
 import java.io.*;
-import java.net.*;
+//import java.net.*;
 import java.awt.*;
 import java.awt.event.*;
 /* $Id: MailClient.java,v 1.7 1999/07/22 12:07:30 kangasha Exp $ */
@@ -9,7 +9,11 @@ import java.awt.event.*;
  * @author Jussi Kangasharju
  */
 public class MailClient extends Frame {
-    /* The stuff for the GUI. */
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4061999647951596481L;
+	/* The stuff for the GUI. */
     private Button btSend = new Button("Send");
     private Button btClear = new Button("Clear");
     private Button btQuit = new Button("Quit");
