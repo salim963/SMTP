@@ -19,6 +19,7 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
+
 /**
 * Open an SMTP connection to a remote machine and send one mail.
 *
@@ -30,7 +31,7 @@ public class SMTPConnection {
 	/* Streams for reading and writing the socket */
 	private BufferedReader fromServer;
 	private DataOutputStream toServer;
-	private static final int SMTP_PORT = 25;
+	private static final int SMTP_PORT = 1025;
 	private static final String CRLF = "\r\n";
 	/* Are we connected? Used in close() to determine what to do. */
 	private boolean isConnected = false;
@@ -38,29 +39,31 @@ public class SMTPConnection {
 	/* Create an SMTPConnection object. Create the socket and the associated streams. Initialize SMTP connection. */
 	public SMTPConnection(Envelope envelope) throws IOException {
 		
-		connection = new Socket("192.168.2.2",SMTP_PORT); //create standard socket connection on port 25
+		connection = new Socket("localhost",SMTP_PORT); //create standard socket connection on port 25
 		fromServer = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 		toServer = new DataOutputStream(connection.getOutputStream());
 
 		/* Read a line from server and check that the reply code is	220. If not, throw an IOException. */
 		String text = fromServer.readLine();
-		System.out.println(parseReply(text));
+		System.out.println("the code we gat from server is " + parseReply(text));
 		if (parseReply(text) != 220)
 		throw new IOException("Reply code not 220");
 		System.out.println("Reply code not 220");
 		
 		/* SMTP handshake. We need the name of the local machine. Send the appropriate SMTP handshake command. */
-		String localhost = "192.168.2.2";
-		sendCommand("HELLO " + localhost + CRLF, 250);
+		String localhost = "localhost";
+		sendCommand("HELO "+localhost+ CRLF , 250);
 		isConnected = true;
 	}
 	
 	/* Send the message. Write the correct SMTP-commands in the	correct order. No checking for errors, just throw them to the caller. */
 	public void send(Envelope envelope) throws IOException {
 		/* Send all the necessary commands to send a message. Call sendCommand() to do the dirty work. Do _not_ catch the exception thrown from sendCommand(). */
-		sendCommand("MAIL FROM: " + envelope.Sender + CRLF,250);
-	    sendCommand("ReCIPIENT TO: " + envelope.Recipient + CRLF ,250);
-	    sendCommand("DATA"+ CRLF ,354);
+		sendCommand("MAIL FROM: " + envelope.Sender,250);
+	    sendCommand("RCPT TO: " + envelope.Recipient,250);
+	    sendCommand("DATA" ,354);
+	    sendCommand(envelope.Message.toString(),250);
+	    sendCommand(".",250);
 	}
 
 	/* Close the connection. First, terminate on SMTP level, then close the socket. */
@@ -83,10 +86,10 @@ public class SMTPConnection {
 	    System.out.println("Server reply: " + fromServer.readLine());
 	    
 	    /* Check that the server's reply code is the same as the parameter rc. If not, throw an IOException. */
-	    if (parseReply(fromServer.readLine()) != rc){
+	    /*if (parseReply(fromServer.readLine()) != rc){
 	        System.out.println("The reply code is not the same as the rc");
 	        throw new IOException("The reply code is not the same as the rc");
-	    }
+	    }*/
 	}
 	
 	/* Parse the reply line from the server. Returns the reply code. */
